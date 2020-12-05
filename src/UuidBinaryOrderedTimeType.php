@@ -201,9 +201,11 @@ class UuidBinaryOrderedTimeType extends Type
      */
     private function encode(UuidInterface $uuid)
     {
-        $this->assertUuidV1($uuid);
+        $dec = $this->decode($uuid->getBytes());
+        
+        $this->assertUuidV1($dec);
 
-        return $this->getCodec()->encodeBinary($uuid);
+        return $this->getCodec()->encodeBinary($dec);
     }
 
     /**
