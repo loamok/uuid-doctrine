@@ -171,6 +171,12 @@ class UuidBinaryOrderedTimeType extends Type
 
         return $this->codec;
     }
+    protected function getStringCodec()
+    {
+            return  new \Ramsey\Uuid\Codec\StringCodec(
+                $this->getUuidFactory()->getUuidBuilder()
+            );
+    }
 
     /**
      * Using this type only makes sense with Uuid version 1 as this is the only
@@ -220,11 +226,15 @@ class UuidBinaryOrderedTimeType extends Type
         try {
             $decoded = $this->getCodec()->decodeBytes($bytes);
         } catch (UnsupportedOperationException $e) {
-            throw ConversionException::conversionFailedFormat(
-                bin2hex($bytes),
-                self::NAME,
-                self::ASSERT_FORMAT
-            );
+            try {
+                $decoded = $this->getStringCodec()->decodeBytes($bytes);
+            } catch (UnsupportedOperationException $e) {
+                throw ConversionException::conversionFailedFormat(
+                    bin2hex($bytes),
+                    self::NAME,
+                    self::ASSERT_FORMAT
+                );
+            }
         }
 
         $this->assertUuidV1($decoded);
